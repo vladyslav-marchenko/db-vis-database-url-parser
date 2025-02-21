@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PRIVATE;
  * Represents a parsed database URL.
  * To add more database-specific properties, create Database-specific classes and extend this.
  * Example: to support mongoDB, create a class MongoDbDatabaseParsedUrl that extends this class since mongo can have multiple hosts and ports.
- * TODO: depending on the usage convert to DTO
+ * TODO: depending on the usage convert to DTO and move to DTO package
  */
 @Data
 @Builder
