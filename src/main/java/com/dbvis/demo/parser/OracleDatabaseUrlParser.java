@@ -4,18 +4,14 @@ import com.dbvis.demo.model.DatabaseParsedUrl;
 import com.dbvis.demo.model.DatabaseType;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: support old SID format
 @Component
 class OracleDatabaseUrlParser extends AbstractRelationalDatabaseUrlParser {
 
     private static final Pattern SID_PATTERN = Pattern.compile("jdbc:oracle:thin:@(?<host>[^:]+):(?<port>\\d+):(?<sid>[^?]+)");
-
-//    private static final Pattern SID_PATTERN = Pattern.compile("jdbc:oracle:thin:@(?<host>[^:]+):(?<port>\\d+):(?<sid>[^?]+)");
 
     @Override
     protected int getDefaultPort() {
