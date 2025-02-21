@@ -1,5 +1,7 @@
 package com.dbvis.demo.model;
 
+import java.util.Optional;
+
 public enum DatabaseType {
 
     MYSQL,
@@ -7,16 +9,18 @@ public enum DatabaseType {
     ORACLE,
     MONGODB;
 
-    public static DatabaseType fromString(String type) {
+    public static Optional<DatabaseType> fromStringSafe(String type) {
         switch (type.toLowerCase()) {
             case "mysql":
-                return MYSQL;
+                return Optional.of(MYSQL);
             case "postgresql":
-                return POSTGRESQL;
+                return Optional.of(POSTGRESQL);
             case "oracle":
-                return ORACLE;
+                return Optional.of(ORACLE);
+            case "mongodb":
+                return Optional.of(MONGODB);
             default:
-                throw new IllegalArgumentException("Unsupported database type: " + type);
+                return Optional.empty();
         }
     }
 

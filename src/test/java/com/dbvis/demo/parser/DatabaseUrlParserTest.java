@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -17,7 +19,7 @@ class DatabaseUrlParserTest {
 
 
     @Test
-    void testParseInvalidUrl() {
+    void testParseBlankUrl() {
         // act: test null
         assertThrows(IllegalArgumentException.class, () ->
                 databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(null));
@@ -25,10 +27,18 @@ class DatabaseUrlParserTest {
         // act: test empty
         assertThrows(IllegalArgumentException.class, () ->
                 databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(""));
+    }
 
-        // act: test invalid prefix
-        assertThrows(IllegalArgumentException.class, () ->
-                databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse("jdbc:invalid://localhost:3306/dbvis"));
+    @Test
+    void testParseUrlWithInvalidPrefix() {
+        // arr
+        String url = "jdbc:invalid://localhost:3306/dbvis";
+
+        // act
+        var databaseParsedUrlOpt = databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(url);
+
+        // assert
+        assertTrue(databaseParsedUrlOpt.isEmpty());
     }
 
     @Test
@@ -37,7 +47,7 @@ class DatabaseUrlParserTest {
         String url = "jdbc:mysql://localhost:3306/dbvis";
 
         // act
-        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(url);
+        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(url).orElseThrow();
 
         // assert
         assertEquals("localhost", actual.getHost());
@@ -51,7 +61,7 @@ class DatabaseUrlParserTest {
         String url = "jdbc:mysql://localhost/dbvis";
 
         // act
-        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(url);
+        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.MYSQL).parse(url).orElseThrow();
 
         // assert
         assertEquals("localhost", actual.getHost());
@@ -67,7 +77,7 @@ class DatabaseUrlParserTest {
         String url = "jdbc:postgresql://db.other@localhost/otherdb?connect_timeout=10&application_name=myapp&user=postgres&password=postgres";
 
         // act
-        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.POSTGRESQL).parse(url);
+        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.POSTGRESQL).parse(url).orElseThrow();
 
         // assert
         assertEquals("db.other@localhost", actual.getHost());
@@ -83,7 +93,7 @@ class DatabaseUrlParserTest {
         String url = "jdbc:oracle:thin:@//db.example.com:1521/orclpdb?user=myuser&password=mypassword&defaultRowPrefetch=100&oracle.net.CONNECT_TIMEOUT=5000";
 
         // act
-        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.ORACLE).parse(url);
+        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.ORACLE).parse(url).orElseThrow();
 
         // assert
         assertEquals("db.example.com", actual.getHost());
@@ -95,6 +105,20 @@ class DatabaseUrlParserTest {
     }
 
     @Test
+    void testParseOracleUrlSidFormat() {
+        // arrange
+        String url = "jdbc:oracle:thin:@db.server.example.com:1521:prod";
+
+        // act
+        DatabaseParsedUrl actual = databaseUrlParserStrategy.getParser(DatabaseType.ORACLE).parse(url).orElseThrow();
+
+        // assert
+        assertEquals("db.server.example.com", actual.getHost());
+        assertEquals(1521, actual.getPort());
+        assertEquals("prod", actual.getSid());
+    }
+
+    @Test
     void testParseMongoUrl() {
         // arrange
         String url = "mongodb+srv://user:password@cluster.example.mongodb.net/db";
@@ -102,22 +126,6 @@ class DatabaseUrlParserTest {
         // act
         assertThrows(UnsupportedOperationException.class, () ->
                 databaseUrlParserStrategy.getParser(DatabaseType.MONGODB).parse(url));
-
-        // arrange
-        /*String url1 = "mongodb+srv://user:password@cluster.example.mongodb.net/db";
-        String url2 = "mongodb://db1.example.com:27019/mydatabase?replicaSet=myReplicaSet&ssl";
-
-        // act
-        DatabaseParsedUrl actual1 = databaseUrlParserStrategy.getParser(DatabaseType.MONGODB).parse(url1);
-        DatabaseParsedUrl actual2 = databaseUrlParserStrategy.getParser(DatabaseType.MONGODB).parse(url2);
-
-        // assert: actual1
-        assertEquals("cluster.example.mongodb.net", actual1.getHost());
-
-        // assert: actual2
-        assertEquals("db1.example.com", actual2.getHost());
-        assertEquals(27019, actual2.getPort());
-        assertEquals(Boolean.TRUE.toString(), actual2.findProperty("ssl").orElseThrow());*/
     }
 
 }

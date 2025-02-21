@@ -1,8 +1,9 @@
 package com.dbvis.demo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,20 +11,37 @@ import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
 
-@Getter
-@AllArgsConstructor
+/**
+ * Represents a parsed database URL.
+ * To add more database-specific properties, create Database-specific classes and extend this.
+ * Example: to support mongoDB, create a class MongoDbDatabaseParsedUrl that extends this class since mongo can have multiple hosts and ports.
+ * TODO: depending on the usage convert to DTO
+ */
+@Data
+@Builder
 @FieldDefaults(level = PRIVATE)
 public class DatabaseParsedUrl {
 
     public static final String USER_PROPERTY = "user";
     public static final String PASSWORD_PROPERTY = "password";
 
-    final String url;
-    final DatabaseType type;
-    final String host;
-    final int port;
-    final String database;
-    final Map<String, String> properties;
+    String url;
+
+    DatabaseType type;
+
+    String host;
+
+    int port;
+
+    String database;
+
+    Map<String, String> properties;
+
+    /**
+     * SID used for backward compatibility with older versions
+     * */
+    @Nullable
+    String sid;
 
     public Optional<String> findUser() {
         return Optional.ofNullable(getProperties().get(USER_PROPERTY));
