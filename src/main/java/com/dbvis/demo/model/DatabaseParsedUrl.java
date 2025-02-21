@@ -39,6 +39,7 @@ public class DatabaseParsedUrl {
 
     /**
      * SID used for backward compatibility with older versions
+     * Can be moved to Database-specific classes if needed (e.g. OracleDatabaseParsedUrl)
      * */
     @Nullable
     String sid;
